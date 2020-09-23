@@ -1,6 +1,9 @@
 #include<random>
 #include<iostream>
 #include"Layer.h"
+
+//Git test
+
 layer::layer(int num_rows, int num_inputs, double epsilon)// ‚¢‚ë‚¢‚ë‰Šú‰»‚µ‚Ä‚¢‚é‚¾‚¯
 	: num_rows(num_rows)
 	, num_inputs(num_inputs)
