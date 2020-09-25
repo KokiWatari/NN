@@ -35,7 +35,7 @@ void layer::init_weight() {
 */
 
 void layer::calc_outputs() {
-	vector<double> u;
+	vector<double> u(num_rows);
 	for (int row = 0; row < num_rows; ++row) {
 		for (int input = 0; input < num_inputs + 1; ++input) {
 			u[row] += inputs[input] * weights[row][input];

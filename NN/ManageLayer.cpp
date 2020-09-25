@@ -30,21 +30,31 @@ ManageLayer::ManageLayer(int num_layer,int num_rows,int num_input,int num_output
 * 穴埋めポイント
 * 
 */
-vector<double> outputs;
+
+
 vector<double> ManageLayer::forword(const vector<double>& inputs) {
+	vector <double> out(num_output);
 	for (int l = 0; l < num_layer + 1; ++l) {
 		// 最初の中間層だけ入力を引数からもらう
 		// それ以降は一つ前の中間層の出力を入力としてもらっている
 		if (l==0) {
-			void set_inputs(const vector<double> & inputs);
+			middle_layers[l].set_inputs(inputs);
+			middle_layers[l].calc_outputs();
+		}
+		else if (l==num_layer) {
+			middle_layers[l].set_inputs(middle_layers[l - 1].get_outputs());
+			middle_layers[l].calc_outputs();
+			out = middle_layers[l].get_outputs();
 		}
 		else {
-			void set_inputs(vector<double> get_outputs());
+			//std::cout << "l= " << l << std::endl;
+			middle_layers[l].set_inputs(middle_layers[l-1].get_outputs());
+			middle_layers[l].calc_outputs();
 		}
-		void calc_outputs();
+		
 	}
 	// 出力層の出力を返り値で返している
-	return outputs;
+	return out;
 }
 /**
 * 穴埋めポイント
@@ -57,14 +67,13 @@ void ManageLayer::back_online(vector<double> &error) {
 		// 更新用dL_dxを使って前の層に渡すdL_dxを算出する　重み更新の前にやること
 		// 更新用dL_dxを使って重みを更新
 		if (l == num_layer) {
-
-			void set_dL_dx(const vector<double> & dL_dx);
+			middle_layers[l].set_dL_dx(error);
 		}
 		else {
-			void set_dL_dx(vector<double> get_dL_dx_for_before());
+			middle_layers[l].set_dL_dx(middle_layers[l + 1].get_dL_dx_for_before());
 		}
-		void calc_dL_dx_for_before();
-		void update_weights();
+		middle_layers[l].calc_dL_dx_for_before();
+		middle_layers[l].update_weights();
 	}
 }
 /**
@@ -76,14 +85,13 @@ void ManageLayer::back_online(vector<double> &error) {
 void ManageLayer::pool_errors_patch(const vector<double>& error) {
 	for (int l = num_layer; l >= 0; --l) {
 		if (l == num_layer) {
-
-			void set_dL_dx(const vector<double> & dL_dx);
+			middle_layers[l].set_dL_dx(error);
 		}
 		else {
-			void set_dL_dx(vector<double> get_dL_dx_for_before());
+			middle_layers[l].set_dL_dx(middle_layers[l + 1].get_dL_dx_for_before());
 		}
-		void calc_dL_dx_for_before();
-		void pool_errors();
+		middle_layers[l].calc_dL_dx_for_before();
+		middle_layers[l].pool_errors();
 	}
 }
 /**
@@ -94,8 +102,8 @@ void ManageLayer::pool_errors_patch(const vector<double>& error) {
 // 次のデータのエポックのためにためた誤差をリセットすること
 void ManageLayer::back_patch(int data_size) {
 	for (int l = num_layer - 1; l >= 0; --l) {
-		void update_weights_for_patch(int data_size);
-		void reset_weights_variation();
+		middle_layers[l].update_weights_for_patch(data_size);
+		middle_layers[l].reset_weights_variation();
 	}
 }
 

@@ -38,12 +38,10 @@ int main() {
 	*/
 	for (int d = 0; d < input_data.size(); d++) {
 		ml.forword(input_data[d]);
-		printf("%lf", output_data[d]);
 	}
-	for (int d = 0; d < input_data.size(); d++) {
-		ml.forword(test_input_data[d]);
-		printf("%lf", test_output_data[d]);
-	}
+	printf("%lf", output_data);
+	ml.loss(test_input_data, test_output_data);
+	printf("%lf", test_output_data);
 
 	return 0;
 }
