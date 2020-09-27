@@ -11,6 +11,7 @@ layer::layer(int num_rows, int num_inputs, double epsilon)// ‚¢‚ë‚¢‚ë‰Šú‰»‚µ‚Ä‚
 	outputs = vector<double>(num_rows);
 	init_weight();
 	dL_dx = vector<double>(num_rows);
+	dL_dx_for_before = vector<double>(num_rows);
 }
 
 void layer::init_weight() {
@@ -58,7 +59,7 @@ void layer::calc_outputs() {
 void layer::calc_dL_dx_for_before() {
 	for (int row = 0; row < num_rows; ++row) {
 		for (int input = 1; input < num_inputs + 1; ++input) {
-			dL_dx_for_before[row] += weights[row][input] * outputs[row] * (1 - outputs[row]) * dL_dx[row];
+				dL_dx_for_before[row] += weights[row][input] * outputs[row] * (1 - outputs[row]) * dL_dx[row];
 		}
 	}
 }

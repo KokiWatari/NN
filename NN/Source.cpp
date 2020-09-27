@@ -24,7 +24,7 @@ int main() {
 	vector<vector<double>> test_output_data = get_vector_from_file("dis_T_sig.csv");
 	// ここからNN本体
 	// ManageLayer クラスの第4引数が学習率だから変えたければいじって
-	ManageLayer ml(sou, soshi, input_data[0].size(), output_data[0].size() , 0.5);
+	ManageLayer ml(sou, soshi, input_data[0].size(), output_data[0].size() , 0.1);
 	if (is_online) {
 		ml.online(input_data,output_data);
 	}
