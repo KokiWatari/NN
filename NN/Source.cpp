@@ -24,7 +24,7 @@ int main() {
 	vector<vector<double>> test_output_data = get_vector_from_file("dis_T_sig.csv");
 	// ここからNN本体
 	// ManageLayer クラスの第4引数が学習率だから変えたければいじって
-	ManageLayer ml(sou, soshi, input_data[0].size(), output_data[0].size() , 0.1);
+	ManageLayer ml(sou, soshi, input_data[0].size(), output_data[0].size() , 0.01);
 	if (is_online) {
 		ml.online(input_data,output_data);
 	}
@@ -36,12 +36,8 @@ int main() {
 	* forword()を使って出力結果を出す。
 	* 教師データと未学習データの出力結果を出力する。
 	*/
-	for (int d = 0; d < input_data.size(); d++) {
-		ml.forword(input_data[d]);
-	}
-	printf("%lf", output_data);
-	ml.loss(test_input_data, test_output_data);
-	printf("%lf", test_output_data);
+
+
 
 	return 0;
 }

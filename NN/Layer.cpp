@@ -11,7 +11,7 @@ layer::layer(int num_rows, int num_inputs, double epsilon)// ‚¢‚ë‚¢‚ë‰Šú‰»‚µ‚Ä‚
 	outputs = vector<double>(num_rows);
 	init_weight();
 	dL_dx = vector<double>(num_rows);
-	dL_dx_for_before = vector<double>(num_rows);
+	dL_dx_for_before = vector<double>(num_inputs + 1);
 }
 
 void layer::init_weight() {
@@ -58,8 +58,8 @@ void layer::calc_outputs() {
 */
 void layer::calc_dL_dx_for_before() {
 	for (int row = 0; row < num_rows; ++row) {
-		for (int input = 1; input < num_inputs + 1; ++input) {
-				dL_dx_for_before[row] += weights[row][input] * outputs[row] * (1 - outputs[row]) * dL_dx[row];
+		for (int input = 0; input < num_inputs; ++input) {
+				dL_dx_for_before[input] += weights[row][input] * outputs[row] * (1 - outputs[row]) * dL_dx[row];
 		}
 	}
 }
@@ -78,7 +78,7 @@ void layer::calc_dL_dx_for_before() {
 */
 void layer::update_weights() {
 	for (int row = 0; row < num_rows; ++row) {
-		for (int input = 1; input < num_inputs + 1; ++input) {
+		for (int input = 0; input < num_inputs + 1; ++input) {
 			weights[row][input] -= epsilon * inputs[input] * outputs[row] * (1 - outputs[row]) * dL_dx[row];
 		}
 	}
@@ -99,7 +99,7 @@ void layer::update_weights() {
 void layer::pool_errors() {
 	for (int row = 0; row < num_rows; ++row) {
 		for (int input = 0; input < num_inputs + 1; ++input) {
-			sum_errors_for_patch[row][input] = epsilon * dL_dx[row] / (num_inputs + 1);
+			sum_errors_for_patch[row][input] += epsilon * inputs[input] * outputs[row] * (1 - outputs[row]) * dL_dx[row];
 		}
 	}
 }
@@ -116,7 +116,7 @@ void layer::pool_errors() {
 */
 void layer::update_weights_for_patch(int data_size) {
 	for (int row = 0; row < num_rows; ++row) {
-		for (int input = 1; input < num_inputs + 1; ++input) {
+		for (int input = 0; input < num_inputs + 1; ++input) {
 			weights[row][input] -= sum_errors_for_patch[row][input];
 		}
 	}
