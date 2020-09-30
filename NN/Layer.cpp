@@ -117,7 +117,7 @@ void layer::pool_errors() {
 void layer::update_weights_for_patch(int data_size) {
 	for (int row = 0; row < num_rows; ++row) {
 		for (int input = 0; input < num_inputs + 1; ++input) {
-			weights[row][input] -= sum_errors_for_patch[row][input];
+			weights[row][input] -= sum_errors_for_patch[row][input]/data_size;
 		}
 	}
 }
