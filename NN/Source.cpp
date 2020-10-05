@@ -36,11 +36,19 @@ int main() {
 	* forword()を使って出力結果を出す。
 	* 教師データと未学習データの出力結果を出力する。
 	*/
-	vector <double> output = ml.forword();
-	printf("%lf", &output);
-	vector <double> test_output = ml.forword();
-	printf("%lf", &test_output);
-
+	
+	vector<vector<double>> output(output_data.size(), vector<double>(output_data[0].size()));
+	for (int i = 0; i < input_data.size();i++) {
+		output[i] = ml.forword(input_data[i]);
+		printf("%lf\n", output_data[i]);
+	}
+	
+	vector<vector<double>> test_output(test_output_data.size(), vector<double>(test_output_data[0].size()));
+	for (int i = 0; i < test_input_data.size(); i++) {
+		test_output[i] = ml.forword(test_input_data[i]);
+		printf("%lf\n", test_output_data[i]);
+	}
+	
 
 	return 0;
 }
