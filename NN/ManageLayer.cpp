@@ -50,7 +50,7 @@ vector<double> ManageLayer::forword(const vector<double>& inputs) {
 		}
 		else {
 			//std::cout << "l= " << l << std::endl;
-			middle_layers[l].set_inputs(middle_layers[l-1].get_outputs());
+			middle_layers[l].set_inputs(middle_layers[l - 1].get_outputs());
 			middle_layers[l].calc_outputs();
 		}
 		
@@ -166,7 +166,7 @@ void ManageLayer::online(const vector<vector<double>> &input_data, vector<vector
 // ‘å‘Ìonline‚Æ“¯‚¶
 void ManageLayer::patch(const vector<vector<double>>& input_data, vector<vector<double>>& output_data) {
 	double loss = 100;
-	for (int times = 0; times < 1001 && loss / input_data.size() > 0.01; ++times) {
+	for (int times = 0; times < 10001 && loss / input_data.size() > 0.01; ++times) {
 		loss = 0;
 		for (int d = 0; d < input_data.size(); d++) {
 			vector<double> error(output_data[0].size());

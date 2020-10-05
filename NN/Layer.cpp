@@ -17,24 +17,16 @@ layer::layer(int num_rows, int num_inputs, double epsilon)// ‚¢‚ë‚¢‚ë‰Šú‰»‚µ‚Ä‚
 void layer::init_weight() {
 	std::random_device rnd;     // ”ñŒˆ’è“I‚È—”¶¬Ší‚ğ¶¬
 	std::mt19937 mt(rnd());     //  
-	std::uniform_real_distribution<> rand01(1.0, 1.0);    // [0, 1.0] ”ÍˆÍ‚Ìˆê—l—”
-	/*
+	std::uniform_real_distribution<> rand01(0, 1.0);    // [0, 1.0] ”ÍˆÍ‚Ìˆê—l—”
+	
 	for (int row = 0; row < num_rows; ++row) {
 		for (int input = 0; input < num_inputs + 1; ++input) {
 			weights[row][input] = rand01(mt);
-			printf("d‚İ%d,%d”Ô–Ú%lf\n", row, input, weights[row][input]);
+			//printf("d‚İ%d,%d”Ô–Ú%lf\n", row, input, weights[row][input]);
 		}
 
 	}
-	*/
-	for (int New_row = 0; New_row < num_rows; ++New_row) {
-		for (int input = 0; input < num_inputs + 1; ++input) {
-			weights[New_row][input] = rand01(mt);
-			printf("d‚İ%d,%d”Ô–Ú%lf\n", New_row, input, weights[New_row][input]);
-		}
-
-	}
-
+	
 
 }
 /**
@@ -51,11 +43,10 @@ void layer::init_weight() {
 void layer::calc_outputs() {
 	vector<double> u(num_rows);
 	for (int row = 0; row < num_rows; ++row) {
-		printf("%d\n", row);
 		for (int input = 0; input < num_inputs + 1; ++input) {
 			u[row] += inputs[input] * weights[row][input];
 		}
-		printf("‘fq”%d,%lf\n", row, u[row]);
+		//printf("‘fq”%d,%lf\n", row, u[row]);
 		outputs[row] = sigmoid(u[row], 1);
 		break;
 	}
@@ -71,13 +62,35 @@ void layer::calc_outputs() {
 * d‚İ‚Íweights[][]‚É“ü‚Á‚Ä‚¢‚éB“Y‚¦š‚Íweights[o—Í][“ü—Í]‚Ì‡‚Å‚ ‚éB
 * ‘O‚Ì‘w‚É‚æ‚Á‚ÄŒvZ‚³‚ê‚½dL/dx‚ÍdL_dx[]‚É“ü‚Á‚Ä‚¢‚éBdL_dx‚ÌƒTƒCƒY‚Í‘w‚Ìo—Í‚Æ“¯‚¶‚Å‚ ‚éB
 */
+
+
+
+void layer::calc_dL_dx_for_before() {
+	vector<double> tmp_dL_dx(num_inputs);
+	for (int input = 0; input < num_inputs; ++input) {//ƒoƒCƒAƒX‚ğœ‚¢‚½ƒCƒ“ƒvƒbƒg‚Ì•ª‚¾‚¯‚â‚é
+		double sum = 0;
+		for (int row = 0; row < num_rows; ++row) {
+			// weights[row][0]‚ÍƒoƒCƒAƒX‚É‘Î‚·‚éd‚İ‚È‚Ì‚ÅdL_dx‚ğŒvZ‚·‚é•K—v‚ª‚È‚¢
+			// ‚æ‚Á‚Äinput + 1‚Å0‚Ì•”•ª‚ğÈ‚¢‚Ä‚¢‚é
+			sum += dL_dx[row] * outputs[row] * (1 - outputs[row]) * weights[row][input + 1];
+		}
+		tmp_dL_dx[input] = sum;
+	}
+	dL_dx_for_before = tmp_dL_dx;
+}
+
+
+
+/*
 void layer::calc_dL_dx_for_before() {
 	for (int row = 0; row < num_rows; ++row) {
 		for (int input = 0; input < num_inputs; ++input) {
-				dL_dx_for_before[input] += weights[row][input] * outputs[row] * (1 - outputs[row]) * dL_dx[row];
+				dL_dx_for_before[input] += weights[row][input+1] * outputs[row] * (1 - outputs[row]) * dL_dx[row];
 		}
 	}
 }
+*/
+
 
 /**
 * ŒŠ–„‚ßƒ|ƒCƒ“ƒg
