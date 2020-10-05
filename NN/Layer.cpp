@@ -17,12 +17,25 @@ layer::layer(int num_rows, int num_inputs, double epsilon)// ‚¢‚ë‚¢‚ë‰Šú‰»‚µ‚Ä‚
 void layer::init_weight() {
 	std::random_device rnd;     // ”ñŒˆ’è“I‚È—”¶¬Ší‚ğ¶¬
 	std::mt19937 mt(rnd());     //  
-	std::uniform_real_distribution<> rand01(0, 1.0);    // [0, 1.0] ”ÍˆÍ‚Ìˆê—l—”
+	std::uniform_real_distribution<> rand01(1.0, 1.0);    // [0, 1.0] ”ÍˆÍ‚Ìˆê—l—”
+	/*
 	for (int row = 0; row < num_rows; ++row) {
 		for (int input = 0; input < num_inputs + 1; ++input) {
 			weights[row][input] = rand01(mt);
+			printf("d‚İ%d,%d”Ô–Ú%lf\n", row, input, weights[row][input]);
 		}
+
 	}
+	*/
+	for (int New_row = 0; New_row < num_rows; ++New_row) {
+		for (int input = 0; input < num_inputs + 1; ++input) {
+			weights[New_row][input] = rand01(mt);
+			printf("d‚İ%d,%d”Ô–Ú%lf\n", New_row, input, weights[New_row][input]);
+		}
+
+	}
+
+
 }
 /**
 * ŒŠ–„‚ßƒ|ƒCƒ“ƒg
@@ -38,13 +51,15 @@ void layer::init_weight() {
 void layer::calc_outputs() {
 	vector<double> u(num_rows);
 	for (int row = 0; row < num_rows; ++row) {
+		printf("%d\n", row);
 		for (int input = 0; input < num_inputs + 1; ++input) {
 			u[row] += inputs[input] * weights[row][input];
 		}
-		outputs[row] = sigmoid(u[row]);
+		printf("‘fq”%d,%lf\n", row, u[row]);
+		outputs[row] = sigmoid(u[row], 1);
+		break;
 	}
 }
-
 /**
 * ŒŠ–„‚ßƒ|ƒCƒ“ƒg
 * calc_dL_dx_for_before()

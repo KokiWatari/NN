@@ -3,6 +3,8 @@
 #include<numeric>
 #include "Layer.h"
 #include"ManageLayer.h"
+#include<random>
+#include <time.h>
 ManageLayer::ManageLayer(int num_layer,int num_rows,int num_input,int num_output,double epsilon)
 	: num_layer(num_layer)
 	, num_rows(num_rows)
@@ -109,14 +111,17 @@ void ManageLayer::back_patch(int data_size) {
 
 void ManageLayer::online(const vector<vector<double>> &input_data, vector<vector<double>> &output_data) {
 	double loss =100;
+	srand((unsigned int)time(NULL));
 	for (int times = 0; times < 10001 && loss / input_data.size() > 0.01; ++times) {
 		loss = 0;
 		for (int d = 0; d < input_data.size(); d++) {
 			// ‚±‚±‚Å‡•ûŒü‚Æ‹t“`”À‚ð‚â‚Á‚Ä‚¢‚é
 			vector<double> error(output_data[0].size());
-			vector<double> result = forword(input_data[d]);
+			int a = rand() % input_data.size();
+			//printf("%d", a);
+			vector<double> result = forword(input_data[a]);
 			for (int out = 0; out < output_data[0].size(); ++out) {
-				error[out] = result[out] - output_data[d][out];
+				error[out] = result[out] - output_data[a][out];
 			}
 			back_online(error);
 			// Œë·‚ÌŽZo@‚±‚ê‚Í‚¿‚á‚ñ‚Æ“®‚¢‚Ä‚é‚©’²‚×‚é‚à‚Ì‚Å•Ê‚ÉXV‚ÉŽg‚Á‚Ä‚é‚í‚¯‚¶‚á‚È‚¢D
@@ -161,7 +166,7 @@ void ManageLayer::online(const vector<vector<double>> &input_data, vector<vector
 // ‘å‘Ìonline‚Æ“¯‚¶
 void ManageLayer::patch(const vector<vector<double>>& input_data, vector<vector<double>>& output_data) {
 	double loss = 100;
-	for (int times = 0; times < 100001 && loss / input_data.size() > 0.01; ++times) {
+	for (int times = 0; times < 1001 && loss / input_data.size() > 0.01; ++times) {
 		loss = 0;
 		for (int d = 0; d < input_data.size(); d++) {
 			vector<double> error(output_data[0].size());
