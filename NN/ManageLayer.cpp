@@ -33,9 +33,8 @@ ManageLayer::ManageLayer(int num_layer,int num_rows,int num_input,int num_output
 * 
 */
 
-
 vector<double> ManageLayer::forword(const vector<double>& inputs) {
-	vector <double> out(num_output);
+	vector <double> out(num_output, 0);
 	for (int l = 0; l < num_layer + 1; ++l) {
 		// 最初の中間層だけ入力を引数からもらう
 		// それ以降は一つ前の中間層の出力を入力としてもらっている
@@ -58,6 +57,9 @@ vector<double> ManageLayer::forword(const vector<double>& inputs) {
 	// 出力層の出力を返り値で返している
 	return out;
 }
+
+
+
 /**
 * 穴埋めポイント
 *
@@ -103,40 +105,39 @@ void ManageLayer::pool_errors_patch(const vector<double>& error) {
 // 全ての層でためた誤差を使って重みを更新する
 // 次のデータのエポックのためにためた誤差をリセットすること
 void ManageLayer::back_patch(int data_size) {
-	for (int l = num_layer - 1; l >= 0; --l) {
+	for (int l = num_layer ; l >= 0; --l) {
 		middle_layers[l].update_weights_for_patch(data_size);
 		middle_layers[l].reset_weights_variation();
 	}
 }
 
-void ManageLayer::online(const vector<vector<double>> &input_data, vector<vector<double>> &output_data) {
-	double loss =100;
-	srand((unsigned int)time(NULL));
-	for (int times = 0; times < 10001 && loss / input_data.size() > 0.01; ++times) {
-		loss = 0;
+
+void ManageLayer::online(const vector<vector<double>>& input_data, vector<vector<double>>& output_data) {
+	// 本当は誤差でループの終了をコントロールしなければならないが面倒なので一定回数で終わるようにした
+	double ave_gosa = 100;
+	for (int times = 0; times < 10001 && ave_gosa / input_data.size() > 0.01; ++times) {
+		ave_gosa = 0;
 		for (int d = 0; d < input_data.size(); d++) {
 			// ここで順方向と逆伝搬をやっている
 			vector<double> error(output_data[0].size());
-			int a = rand() % input_data.size();
-			//printf("%d", a);
-			vector<double> result = forword(input_data[a]);
+			vector<double> result = forword(input_data[d]);
 			for (int out = 0; out < output_data[0].size(); ++out) {
-				error[out] = result[out] - output_data[a][out];
+				error[out] = result[out] - output_data[d][out];
 			}
 			back_online(error);
 			// 誤差の算出　これはちゃんと動いてるか調べるもので別に更新に使ってるわけじゃない．
-			double square_error = 0;
+			double gosa = 0;
 			for (int i = 0; i < error.size(); i++) {
-				square_error += pow(error[i], 2);
+				gosa += pow(error[i], 2);
 			}
-			loss += square_error;
+			ave_gosa += gosa;
 			/*if (times % 100 == 0) {
 				cout << "times:" << times << ", " << "gosa:" << gosa << endl;
 			}*/
 		}
 		if (times % 10 == 0) {
-			cout << "times:" << times << ", loss:" << loss / input_data.size() << endl;
-		}	
+			cout << "times:" << times << ", ave_gosa:" << ave_gosa / input_data.size() << endl;
+		}
 	}
 	/*while(true) {
 		cout << "input(push Enter each number):";
@@ -159,32 +160,28 @@ void ManageLayer::online(const vector<vector<double>> &input_data, vector<vector
 			break;
 	}*/
 }
-/**
-* 穴埋めポイント
-*
-*/
 // 大体onlineと同じ
 void ManageLayer::patch(const vector<vector<double>>& input_data, vector<vector<double>>& output_data) {
-	double loss = 100;
-	for (int times = 0; times < 10001 && loss / input_data.size() > 0.01; ++times) {
-		loss = 0;
+	double ave_gosa = 100;
+	for (int times = 0; times < 100001 && ave_gosa / input_data.size() > 0.01; ++times) {
+		ave_gosa = 0;
 		for (int d = 0; d < input_data.size(); d++) {
 			vector<double> error(output_data[0].size());
 			vector<double> result = forword(input_data[d]);
 			for (int out = 0; out < output_data[0].size(); ++out) {
 				error[out] = result[out] - output_data[d][out];
 			}
-			pool_errors_patch(error);
-			double square_error = 0;
+			pool_errors_patch(error);//
+			double gosa = 0;
 			for (int i = 0; i < error.size(); i++) {
-				square_error += pow(error[i], 2);
+				gosa += pow(error[i], 2);
 			}
-			loss += square_error;
+			ave_gosa += gosa;
 		}
 		// ここでためた誤差を使って一気に逆伝播をかけている
 		back_patch(input_data.size());
 		if (times % 10 == 0) {
-			cout << "times:" << times << ", loss:" << loss / input_data.size() << endl;
+			cout << "times:" << times << ", ave_gosa:" << ave_gosa / input_data.size() << endl;
 		}
 
 	}
@@ -210,23 +207,23 @@ void ManageLayer::patch(const vector<vector<double>>& input_data, vector<vector<
 	}*/
 }
 void ManageLayer::loss(const vector<vector<double>>& test_input_data, vector<vector<double>>& test_output_data) {
-	double loss = 0;
+	double ave_gosa = 0;
 	for (int d = 0; d < test_input_data.size(); d++) {
 		vector<double> error(test_output_data[0].size());
 		vector<double> result = forword(test_input_data[d]);
 		for (int out = 0; out < test_output_data[0].size(); ++out) {
 			error[out] = result[out] - test_output_data[d][out];
 		}
-		double square_error = 0;
+		double gosa = 0;
 		for (int i = 0; i < error.size(); i++) {
-			square_error += pow(error[i], 2);
+			gosa += pow(error[i], 2);
 		}
-		loss += square_error;
+		ave_gosa += gosa;
 	}
-	cout << "test loss:" << loss / test_input_data.size() << endl;
+	cout << "test_ave_gosa:" << ave_gosa / test_input_data.size() << endl;
 }
 void ManageLayer::print_weight() {
-	for (int l = 0; l < middle_layers.size(); ++l) {
+	for (int l = 0; l < num_layer + 1; ++l) {
 		middle_layers[l].print_weight();
 	}
 }
